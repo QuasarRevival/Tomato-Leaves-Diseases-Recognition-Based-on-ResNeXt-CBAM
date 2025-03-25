@@ -1,4 +1,5 @@
 import torch.nn as nn
+import torch.nn.init as init
 
 
 class Bottleneck(nn.Module):
@@ -35,7 +36,7 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    def __init__(self, num_classes=11):
+    def __init__(self, num_classes, init_weight=True):
         super(ResNet, self).__init__()
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
@@ -48,6 +49,9 @@ class ResNet(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
         self.dropout = nn.Dropout(p=0.5)
         self.fc = nn.Linear(512 * Bottleneck.expansion, num_classes)
+
+        if init_weight:
+            self._initialize_weights()
 
     def _make_layer(self, inplanes, planes, blocks, stride=1):
         downsample = None
@@ -63,6 +67,19 @@ class ResNet(nn.Module):
         for _ in range(1, blocks):
             layers.append(Bottleneck(inplanes, planes))
         return nn.Sequential(*layers)
+
+    def _initialize_weights(self):
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                if m.bias is not None:
+                    init.constant_(m.bias, 0)
+            elif isinstance(m, nn.BatchNorm2d):
+                init.constant_(m.weight, 1)
+                init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                init.kaiming_normal_(m.weight)
+                init.constant_(m.bias, 0)
 
     def forward(self, x):
         x = self.conv1(x)

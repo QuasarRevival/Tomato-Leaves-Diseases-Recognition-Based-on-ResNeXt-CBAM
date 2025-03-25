@@ -108,5 +108,5 @@ class VGG(nn.Module):
                 init.constant_(m.weight, 1)
                 init.constant_(m.bias, 0)
             elif isinstance(m, nn.Linear):
-                init.xavier_uniform_(m.weight)
+                init.kaiming_normal_(m.weight)
                 init.constant_(m.bias, 0)
