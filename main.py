@@ -2,6 +2,7 @@ import torch as tc
 import torch.optim as optim
 import torch.nn as nn
 import random
+import csv
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -24,6 +25,8 @@ if device == 'cuda':
 train_path = './TomatoLeavesDataset/train'
 valid_path = './TomatoLeavesDataset/valid'
 test_path = './PlantVillageTomatoLeavesDataset/val'
+
+csv_file_path = 'training_records/ResNet/with_weight_init/train_log.csv'
 
 # 定义种类字典
 class_to_index = {
@@ -186,15 +189,27 @@ def main():
     print("Train the model? Y for yes, N for no: ", end='')
     choose = input()
     if choose == 'Y':
-        train(model, train_data, valid_data, criterion, optimizer, schedule, train_epoch)
-        print("Accuracy on test dataset: ", evaluate_acc(test_data, model))
+        acl, tal, val = train(model, train_data, valid_data, criterion, optimizer, schedule, train_epoch)
+        # acl = [i for i in range(25)]
+        # tal = [i for i in range(25)]
+        # val = [i for i in range(25)]
+        epc = [i for i in range(1, train_epoch+1)]
+        test_acc = evaluate_acc(test_data, model)
+        print("Accuracy on test dataset: ", test_acc)
+        csv_data = zip(epc, acl, tal, val)
+
+        with open(csv_file_path, "w", newline='') as csv_file:
+            writer = csv.writer(csv_file)
+            writer.writerow(["Epoch", "Cost", "Train_acc", "Valid_acc"])
+            writer.writerows(csv_data)
+            # writer.writerow([test_acc])
 
     print("Save the model? Y for yes, N for no: ", end='')
     choose = input()
     if choose == 'Y':
         tc.save(model.state_dict(), './model_param_' + switch + '.pth')
 
-'''
+    '''
     print(len(test_data))
     for X, Y in test_data:
         print(X.size())
@@ -211,7 +226,7 @@ def main():
         prediction = tc.argmax(prediction, 1)
         print(prediction)
         break
-'''
+    '''
 
 
 main()

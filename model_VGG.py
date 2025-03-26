@@ -1,5 +1,5 @@
 import torch.nn as nn
-import torch.nn.init as init
+from init_param import initialize_weights
 
 
 # VGG16深神经网络
@@ -82,7 +82,7 @@ class VGG(nn.Module):
         self.full_connection_3 = nn.Linear(4096, num_classes, bias=True)
 
         if init_weight:
-            self._initialize_weights()
+            initialize_weights(self)
 
     def forward(self, x):
         x = self.features(x)
@@ -97,16 +97,3 @@ class VGG(nn.Module):
         x = self.dropout_2(x)
         x = self.full_connection_3(x)
         return x
-
-    def _initialize_weights(self):
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-                if m.bias is not None:
-                    init.constant_(m.bias, 0)
-            elif isinstance(m, nn.BatchNorm2d):
-                init.constant_(m.weight, 1)
-                init.constant_(m.bias, 0)
-            elif isinstance(m, nn.Linear):
-                init.kaiming_normal_(m.weight)
-                init.constant_(m.bias, 0)

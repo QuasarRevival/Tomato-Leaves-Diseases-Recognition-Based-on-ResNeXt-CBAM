@@ -1,0 +1,26 @@
+Epoch,Cost,Train_acc,Valid_acc
+1,"tensor(1.9860, device='cuda:0', grad_fn=<DivBackward0>)",0.38706433019999226,0.6178363010623972
+2,"tensor(1.2579, device='cuda:0', grad_fn=<DivBackward0>)",0.5606359521875363,0.6419272781684872
+3,"tensor(0.9732, device='cuda:0', grad_fn=<DivBackward0>)",0.6569184944489574,0.6931019003441569
+4,"tensor(0.8351, device='cuda:0', grad_fn=<DivBackward0>)",0.7078642992534138,0.7554990273829119
+5,"tensor(0.7448, device='cuda:0', grad_fn=<DivBackward0>)",0.7353293876445786,0.7640281310788568
+6,"tensor(0.6655, device='cuda:0', grad_fn=<DivBackward0>)",0.7664693822289274,0.7686667664222655
+7,"tensor(0.6099, device='cuda:0', grad_fn=<DivBackward0>)",0.7844570809639859,0.7917103097411342
+8,"tensor(0.5570, device='cuda:0', grad_fn=<DivBackward0>)",0.8018258481296662,0.8135567858746072
+9,"tensor(0.5291, device='cuda:0', grad_fn=<DivBackward0>)",0.8116900700166337,0.8192428550052372
+10,"tensor(0.4913, device='cuda:0', grad_fn=<DivBackward0>)",0.8290201539592279,0.8295675594792757
+11,"tensor(0.3198, device='cuda:0', grad_fn=<DivBackward0>)",0.8863100073498124,0.8668262756247195
+12,"tensor(0.2828, device='cuda:0', grad_fn=<DivBackward0>)",0.9000425515453948,0.874607212329792
+13,"tensor(0.2631, device='cuda:0', grad_fn=<DivBackward0>)",0.9070828981470737,0.8767020799042347
+14,"tensor(0.2484, device='cuda:0', grad_fn=<DivBackward0>)",0.9116862016943251,0.8835852162202603
+15,"tensor(0.2349, device='cuda:0', grad_fn=<DivBackward0>)",0.9173339522649027,0.8793954810713751
+16,"tensor(0.2272, device='cuda:0', grad_fn=<DivBackward0>)",0.9205833430041391,0.8865778841837498
+17,"tensor(0.2146, device='cuda:0', grad_fn=<DivBackward0>)",0.9240261498588063,0.8924135867125542
+18,"tensor(0.2020, device='cuda:0', grad_fn=<DivBackward0>)",0.9287841862984024,0.8894209187490648
+19,"tensor(0.1958, device='cuda:0', grad_fn=<DivBackward0>)",0.931569378360605,0.8930121203052521
+20,"tensor(0.1846, device='cuda:0', grad_fn=<DivBackward0>)",0.9345479865382383,0.8918150531198563
+21,"tensor(0.1582, device='cuda:0', grad_fn=<DivBackward0>)",0.9464237360256856,0.9006434236121502
+22,"tensor(0.1531, device='cuda:0', grad_fn=<DivBackward0>)",0.9471974004874086,0.9027382911865929
+23,"tensor(0.1511, device='cuda:0', grad_fn=<DivBackward0>)",0.9487447294108545,0.9015412240011971
+24,"tensor(0.1468, device='cuda:0', grad_fn=<DivBackward0>)",0.9483578971799931,0.9025886577884183
+25,"tensor(0.1449, device='cuda:0', grad_fn=<DivBackward0>)",0.9501760086650419,0.9027382911865929
