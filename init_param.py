@@ -13,5 +13,5 @@ def initialize_weights(model):
             init.constant_(m.weight, 1)
             init.constant_(m.bias, 0)
         elif isinstance(m, nn.Linear):
-            init.kaiming_normal_(m.weight)
+            init.normal_(m.weight, mean=0, std=0.01)
             init.constant_(m.bias, 0)

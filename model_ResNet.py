@@ -1,5 +1,5 @@
 import torch.nn as nn
-import torch.nn.init as init
+# import torch.nn.init as init
 from init_param import initialize_weights
 
 
@@ -30,8 +30,8 @@ class Bottleneck(nn.Module):
 
         if init_weight:
             initialize_weights(self)
-            # 残差层最后一层可以考虑使用较小的值进行初始化
-            init.normal_(self.conv3.weight, mean=0, std=0.01)
+            # 残差层最后一层可以考虑使用较小的值进行初始化，不一定有效
+            # init.normal_(self.conv3.weight, mean=0, std=0.01)
 
     def forward(self, x):
         # 学习残差

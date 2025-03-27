@@ -11,6 +11,7 @@ from PIL import Image
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import torch.optim.lr_scheduler as scheduler
+from sklearn.metrics import cohen_kappa_score
 
 from model_VGG import VGG
 from model_ResNet import ResNet
@@ -100,10 +101,12 @@ test_data = DataLoader(
 
 
 # 校验准确率
-def evaluate_acc(test_loader, model):
+def evaluate_acc(test_loader, model, with_kappa=False):
     model.eval()
     test_correct = 0.0
     test_total = 0.0
+    l = []
+    p = []
     with tc.no_grad():
         for i, (images, labels) in enumerate(test_loader):
             inputs, labels = images.to(device), labels.to(device)
@@ -111,8 +114,16 @@ def evaluate_acc(test_loader, model):
             predicted = tc.argmax(outputs.data, 1)
             test_total += labels.size(0)
             test_correct += (predicted == labels).sum().item()
+            if with_kappa:
+                l.extend(labels.to('cpu').tolist())
+                p.extend(predicted.to('cpu').tolist())
     test_accuracy = test_correct / test_total
-    return test_accuracy
+    l = np.array(l)
+    p = np.array(p)
+    l.reshape(-1, 1)
+    p.reshape(-1, 1)
+    kappa = cohen_kappa_score(l, p, weights='quadratic')
+    return test_accuracy, kappa
 
 
 # 训练模型
@@ -139,7 +150,7 @@ def train(model, train_loader, valid_loader, criterion, optimizer, schedule, epo
             cost = criterion(hypothesis, Y)
             cost.backward()
             optimizer.step()
-            average_cost += cost
+            average_cost += cost.item()
             if show_acc:
                 predict = tc.argmax(output.data, 1)
                 total_number += Y.size(0)
@@ -150,7 +161,7 @@ def train(model, train_loader, valid_loader, criterion, optimizer, schedule, epo
         if show_acc:
             train_accuracy /= total_number
             train_accuracy_list.append(train_accuracy)
-            valid_accuracy = evaluate_acc(valid_loader, model)
+            valid_accuracy, _ = evaluate_acc(valid_loader, model)
             valid_accuracy_list.append(valid_accuracy)
             print('[Epoch:{}] cost = {} train_acc = {} valid_acc = {}'
                   .format(i + 1, average_cost, train_accuracy, valid_accuracy))
@@ -184,7 +195,9 @@ def main():
     choose = input()
     if choose == 'Y':
         model.load_state_dict(tc.load('./model_param_' + switch + '.pth', weights_only=True))
-        print("Accuracy on test dataset: ", evaluate_acc(test_data, model))
+        accuracy, kappa = evaluate_acc(test_data, model, with_kappa=True)
+        print("Accuracy on test dataset: ", accuracy)
+        print("Kappa score: ", kappa)
 
     print("Train the model? Y for yes, N for no: ", end='')
     choose = input()
@@ -194,8 +207,9 @@ def main():
         # tal = [i for i in range(25)]
         # val = [i for i in range(25)]
         epc = [i for i in range(1, train_epoch+1)]
-        test_acc = evaluate_acc(test_data, model)
+        test_acc, kappa = evaluate_acc(test_data, model)
         print("Accuracy on test dataset: ", test_acc)
+        print("Kappa score: ", kappa)
         csv_data = zip(epc, acl, tal, val)
 
         with open(csv_file_path, "w", newline='') as csv_file:
