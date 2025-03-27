@@ -122,7 +122,9 @@ def evaluate_acc(test_loader, model, with_kappa=False):
     p = np.array(p)
     l.reshape(-1, 1)
     p.reshape(-1, 1)
-    kappa = cohen_kappa_score(l, p, weights='quadratic')
+    kappa = 0
+    if with_kappa:
+        kappa = cohen_kappa_score(l, p, weights='quadratic')
     return test_accuracy, kappa
 
 
@@ -207,7 +209,7 @@ def main():
         # tal = [i for i in range(25)]
         # val = [i for i in range(25)]
         epc = [i for i in range(1, train_epoch+1)]
-        test_acc, kappa = evaluate_acc(test_data, model)
+        test_acc, kappa = evaluate_acc(test_data, model, with_kappa=True)
         print("Accuracy on test dataset: ", test_acc)
         print("Kappa score: ", kappa)
         csv_data = zip(epc, acl, tal, val)
