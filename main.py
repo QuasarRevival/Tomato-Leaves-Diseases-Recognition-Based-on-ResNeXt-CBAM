@@ -52,7 +52,7 @@ std = [0.229, 0.224, 0.225]
 
 learning_rate = 0.001
 batch_size = 32
-train_epoch = 40
+train_epoch = 25
 l2_lambda = 0.00001
 
 # 数据增强以及图像张量化
