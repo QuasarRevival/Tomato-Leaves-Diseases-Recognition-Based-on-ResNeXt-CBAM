@@ -161,4 +161,12 @@ much more complicated classifier. But the optimization on the perception layer d
 - Result of the Day: \
 Model: ResNet\
 Test Accuracy: 97.445%\
-The result may not be so reasonable, due to the increasing of epoch to 40 without any learning rate decay.
+Notes: The result may not be so reasonable, due to the increasing of epoch to 40 without any learning rate decay.
+
+### Time: 2025.3.28
+
+- No optimization to the model
+- Result of the day: \
+Model: ResNet\
+Test Accuracy: 98.971%\
+Notes: readjust the optimizer and learning rate scheduler.
