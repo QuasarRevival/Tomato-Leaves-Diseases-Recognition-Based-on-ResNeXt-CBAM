@@ -1,4 +1,9 @@
-matplotlib
-torch
+matplotlib~=3.10.0
+torch~=2.5.1
 ultralytics
 visdom
+torchvision~=0.20.1
+
+numpy~=2.0.1
+pillow~=11.1.0
+scikit-learn~=1.6.1
