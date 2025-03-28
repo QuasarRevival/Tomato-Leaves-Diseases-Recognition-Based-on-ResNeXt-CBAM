@@ -12,9 +12,6 @@ def resize_with_padding_torch(image, target_size=(128, 128)):
     """
     使用 torchvision.transforms 将图像调整为 target_size，同时保持长宽比，并在周围填充黑色。
     """
-    # 将 NumPy 数组转换为 PIL 图像
-    # pil_image = Image.fromarray(image)
-    # print(pil_image.size)
 
     # 计算缩放比例
     h, w, c = image.shape
