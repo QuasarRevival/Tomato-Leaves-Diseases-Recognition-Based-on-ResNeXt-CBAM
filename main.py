@@ -27,7 +27,8 @@ train_path = './TomatoLeavesDataset/train'
 valid_path = './TomatoLeavesDataset/valid'
 test_path = './PlantVillageTomatoLeavesDataset/val'
 
-csv_file_path = 'training_records/ResNet/with_weight_init/train_log.csv'
+# 每次训练前都要修改记录存放路径！
+csv_file_path = 'training_records/ResNet/with_optimized_perception_layer_and_classifier/train_log.csv'
 
 # 定义种类字典
 class_to_index = {
@@ -51,7 +52,7 @@ std = [0.229, 0.224, 0.225]
 
 learning_rate = 0.001
 batch_size = 32
-train_epoch = 25
+train_epoch = 40
 l2_lambda = 0.00001
 
 # 数据增强以及图像张量化
@@ -192,6 +193,9 @@ def main():
     criterion = nn.CrossEntropyLoss().to(device)
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(0.9, 0.999), weight_decay=l2_lambda)
     schedule = scheduler.StepLR(optimizer=optimizer, step_size=10, gamma=0.1)
+
+    # 尝试使用自适应学习率衰减
+    # schedule = scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3)
 
     print("Load the model from local? Y for yes, N for no: ", end='')
     choose = input()

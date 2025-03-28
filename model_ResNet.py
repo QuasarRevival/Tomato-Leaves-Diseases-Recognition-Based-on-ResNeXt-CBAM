@@ -64,10 +64,26 @@ class ResNet(nn.Module):
         super(ResNet, self).__init__()
 
         # 感知层，卷积核边长为7
+        '''
         self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU(inplace=True)
         self.max_pooling = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
+        '''
+
+        # 感知层替换：使用多个拥有较小尺寸卷积核的卷积层替代原先的大尺寸卷积核感知层
+        self.perception = nn.Sequential(
+            nn.Conv2d(3, 32, kernel_size=3, stride=2, padding=1, bias=False),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(32),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1, bias=False),
+            nn.BatchNorm2d(64),
+            nn.ReLU(inplace=True),
+            nn.MaxPool2d(2, stride=2, padding=1)
+        )
 
         # 主体结构层
         self.layer1 = self._make_layer(64, 64, 3, init_weight=init_weight)
@@ -80,8 +96,10 @@ class ResNet(nn.Module):
         self.dropout = nn.Dropout(p=0.5)
 
         # 分类器，全连接层
+
         self.fc = nn.Linear(512 * Bottleneck.expansion, num_classes)
-        # 分类器待替换：
+
+        # 分类器替换：
         # 注意LayerNorm和BatchNorm的区别：
         # LayerNorm：对单个样本的所有通道进行正则化
         # BatchNorm：对所有样本的单个通道进行正则化
@@ -89,7 +107,7 @@ class ResNet(nn.Module):
         '''
         self.classifier = nn.Sequential(
             nn.Linear(512 * Bottleneck.expansion, 1024),
-            nn.LayerNorm(1024),
+            nn.GroupNorm(32, 1024),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5),
             nn.Linear(1024, num_classes)
@@ -122,10 +140,14 @@ class ResNet(nn.Module):
 
     def forward(self, x):
 
+        """
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.relu(x)
         x = self.max_pooling(x)
+        """
+
+        x = self.perception(x)
 
         x = self.layer1(x)
         x = self.layer2(x)
@@ -136,6 +158,11 @@ class ResNet(nn.Module):
 
         x = x.view(x.size(0), -1)
         x = self.dropout(x)
+
         x = self.fc(x)
+        """
+
+        x = self.classifier(x)
+        """
 
         return x

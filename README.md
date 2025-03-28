@@ -154,3 +154,11 @@ class ResNet(nn.Module):
 
 The usage of LayerNorm or GroupNorm may increase the stability of the model
 when handling image classifying missions.
+
+After altering the classifier, I found that maybe it's not a good idea to build a 
+much more complicated classifier. But the optimization on the perception layer did work well.
+
+- Result of the Day: \
+Model: ResNet\
+Test Accuracy: 97.445%\
+The result may not be so reasonable, due to the increasing of epoch to 40 without any learning rate decay.
