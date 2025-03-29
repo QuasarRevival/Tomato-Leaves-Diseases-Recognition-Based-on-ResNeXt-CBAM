@@ -20,7 +20,7 @@ def resize_with_padding_torch(image, target_size=(128, 128)):
     new_w, new_h = int(w * scale), int(h * scale)
     image = transforms.ToTensor()(image)
     image.permute([2, 0, 1])
-    print(image.shape)
+    # print(image.shape)
 
     # 缩放图像
     resize_transform = transforms.Resize((new_h, new_w), interpolation=transforms.InterpolationMode.BILINEAR)
@@ -35,7 +35,7 @@ def resize_with_padding_torch(image, target_size=(128, 128)):
     # 填充图像
     pad_transform = transforms.Pad((pad_left, pad_top, pad_right, pad_bottom), fill=0)
     padded_image = pad_transform(resized_image)
-    print(padded_image.shape)
+    # print(padded_image.shape)
     padded_image = transforms.Normalize(mean, std)(padded_image).unsqueeze(0)
 
     return padded_image
@@ -51,7 +51,7 @@ def recognize_image(image, model):
 def predict_image(model, image_path):
     test_image = Image.open(image_path)
     test_image = np.array(test_image)
-    print(test_image.shape)
+    # print(test_image.shape)
 
     prediction, padded_image = recognize_image(test_image, model)
     return prediction

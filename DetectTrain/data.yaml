@@ -1,0 +1,6 @@
+path: D:\ZhangLin\Desktop\Deep CNN\DetectTrain
+train: ./train/images
+val: ./val/images
+
+names:
+  0: tomato_leaf

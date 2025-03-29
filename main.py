@@ -212,7 +212,7 @@ def main():
         '''
         prediction = predict_image(model, single_image_path)
         tag = [key for key, value in class_to_index.items() if value == prediction]
-        print(tag)
+        print("Prediction: ", tag[0])
 
     print("Train the model? Y for yes, N for no: ", end='')
     choose = input()
