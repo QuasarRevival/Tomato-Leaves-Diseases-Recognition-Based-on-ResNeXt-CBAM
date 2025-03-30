@@ -1,20 +1,17 @@
 import torch as tc
 import torch.optim as optim
 import torch.nn as nn
-import random
 import csv
 
 import numpy as np
-import matplotlib.pyplot as plt
 
-from PIL import Image
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import torch.optim.lr_scheduler as scheduler
 from sklearn.metrics import cohen_kappa_score
 
-from model_VGG import VGG
-from model_ResNet import ResNet
+from CNN_models.model_VGG import VGG
+from CNN_models.model_ResNet import ResNet
 
 from test_model import predict_image
 
@@ -25,11 +22,11 @@ if device == 'cuda':
     tc.cuda.manual_seed_all(415)
 
 # 训练集与验证集路径
-train_path = './TomatoLeavesDataset/train'
-valid_path = './TomatoLeavesDataset/valid'
-test_path = './PlantVillageTomatoLeavesDataset/val'
+train_path = 'datasets/TomatoLeavesDataset/train'
+valid_path = 'datasets/TomatoLeavesDataset/valid'
+test_path = 'datasets/PlantVillageTomatoLeavesDataset/val'
 
-single_image_path = './ExtendedTestImages/Target_spot/Ts1.jpg'
+single_image_path = 'datasets/ExtendedTestImages/Target_spot/Ts1.jpg'
 
 # 每次训练前都要修改记录存放路径！
 csv_file_path = 'training_records/ResNet/with_optimized_perception_layer_and_classifier/train_log.csv'

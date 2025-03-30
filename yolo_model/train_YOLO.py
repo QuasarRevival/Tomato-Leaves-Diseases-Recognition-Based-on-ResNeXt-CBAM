@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import torchvision
 import torch
 
-train_path = './DetectTrain/data.yaml'
+train_path = '../datasets/DetectTrain/data.yaml'
 
 print(torch.cuda.is_available())
 print(torchvision.ops.box_convert)
