@@ -1,6 +1,6 @@
 import torch.nn as nn
 # import torch.nn.init as init
-from init_param import initialize_weights
+from CNN_models.init_param import initialize_weights
 
 
 # ResNet残差网络模型

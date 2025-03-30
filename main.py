@@ -13,7 +13,7 @@ from sklearn.metrics import cohen_kappa_score
 from CNN_models.model_VGG import VGG
 from CNN_models.model_ResNet import ResNet
 
-from test_model import predict_image
+from test_model import predict_from_extended, predict_image, open_image
 
 # GPU是否可用，设置随机数种子使得训练过程可复现
 device = 'cuda' if tc.cuda.is_available() else 'cpu'
@@ -26,7 +26,8 @@ train_path = 'datasets/TomatoLeavesDataset/train'
 valid_path = 'datasets/TomatoLeavesDataset/valid'
 test_path = 'datasets/PlantVillageTomatoLeavesDataset/val'
 
-single_image_path = 'datasets/ExtendedTestImages/Target_spot/Ts1.jpg'
+yolo_model_path = 'runs/detect/train2/weights/best.pt'
+single_image_path = 'datasets/ExtendedTestImages/powdery_mildew/Pm3.jpg'
 
 # 每次训练前都要修改记录存放路径！
 csv_file_path = 'training_records/ResNet/with_optimized_perception_layer_and_classifier/train_log.csv'
@@ -201,13 +202,20 @@ def main():
     print("Load the model from local? Y for yes, N for no: ", end='')
     choose = input()
     if choose == 'Y':
-        '''
+
         model.load_state_dict(tc.load('./model_param_' + switch + '.pth', weights_only=True))
+
+        '''
         accuracy, kappa = evaluate_acc(test_data, model, with_kappa=True)
         print("Accuracy on test dataset: ", accuracy)
         print("Kappa score: ", kappa)
         '''
-        prediction = predict_image(model, single_image_path)
+
+        prediction = predict_from_extended(img_path=single_image_path, yolo_path=yolo_model_path, model=model)
+
+        if prediction is None:
+            image = open_image(image_path=single_image_path)
+            prediction = predict_image(model, image)
         tag = [key for key, value in class_to_index.items() if value == prediction]
         print("Prediction: ", tag[0])
 

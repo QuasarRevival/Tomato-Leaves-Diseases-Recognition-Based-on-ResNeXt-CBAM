@@ -1,4 +1,4 @@
-path: D:\ZhangLin\Desktop\Deep CNN\DetectTrain
+path: D:\ZhangLin\Desktop\Deep CNN\datasets\DetectTrain
 train: ./train/images
 val: ./val/images
 

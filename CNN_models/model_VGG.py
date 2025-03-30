@@ -1,5 +1,5 @@
 import torch.nn as nn
-from init_param import initialize_weights
+from CNN_models.init_param import initialize_weights
 
 
 # VGG16深神经网络

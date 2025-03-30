@@ -170,3 +170,14 @@ Notes: The result may not be so reasonable, due to the increasing of epoch to 40
 Model: ResNet\
 Test Accuracy: 98.971%\
 Notes: readjust the optimizer and learning rate scheduler.
+
+### Time: 2025.3.30
+
+- Add YOLOv8 model to the project and attempt to detect leaves from images 
+and cut them from the original image. But the YOLOv8 model cannot do this work well. 
+I guess that there might be some severe problems with the detection test dataset.
+I found that images from the dataset all have leaves distinct from the background, 
+which means that the model trained on this dataset won't do well to distinguish objects share 
+similar color with the background. To solve the problem, we need to find images of leaves that might not 
+be distinct from the background, and label them.
+
