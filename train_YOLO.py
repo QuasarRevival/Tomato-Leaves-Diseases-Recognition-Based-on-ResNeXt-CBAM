@@ -17,5 +17,5 @@ torchvision.ops.nms(boxes, scores, 0.5)  # 应不报错
 
 if __name__ == '__main__':
     torch.multiprocessing.freeze_support()
-    yolo_model = YOLO("yolo_model/yolov8n.pt").to('cuda')
+    yolo_model = YOLO("yolov8n.pt").to('cuda')
     yolo_model.train(data=train_path, epochs=100, imgsz=224, device=0)

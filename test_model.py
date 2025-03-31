@@ -1,5 +1,6 @@
 from torchvision import transforms
 from ultralytics import YOLO
+import matplotlib.pyplot as plt
 import cv2
 from PIL import Image
 import numpy as np
@@ -9,7 +10,8 @@ mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
 
 
-# image_path = './datasets/PlantVillageTomatoLeavesDataset/test/Powdery_mildew/pm66_lower.jpg'
+image_path = './datasets/PlantVillageTomatoLeavesDataset/test/Powdery_mildew/pm66_lower.jpg'
+yolo_model_path = 'runs/detect/train2/weights/best.pt'
 
 
 def resize_with_padding_torch(image, target_size=(128, 128)):
@@ -22,9 +24,12 @@ def resize_with_padding_torch(image, target_size=(128, 128)):
     target_h, target_w = target_size
     scale = min(target_w / w, target_h / h)
     new_w, new_h = int(w * scale), int(h * scale)
+
+    # plt.imshow(image)
+    # plt.show()
     image = transforms.ToTensor()(image)
     image.permute([2, 0, 1])
-    # print(image.shape)
+    print(image.shape)
 
     # 缩放图像
     resize_transform = transforms.Resize((new_h, new_w), interpolation=transforms.InterpolationMode.BILINEAR)
@@ -39,6 +44,8 @@ def resize_with_padding_torch(image, target_size=(128, 128)):
     # 填充图像
     pad_transform = transforms.Pad((pad_left, pad_top, pad_right, pad_bottom), fill=0)
     padded_image = pad_transform(resized_image)
+    plt.imshow(padded_image.permute([1, 2, 0]).to('cpu').numpy())
+    plt.show()
     # print(padded_image.shape)
     padded_image = transforms.Normalize(mean, std)(padded_image).unsqueeze(0)
 
@@ -52,15 +59,15 @@ def open_image(image_path):
 
 
 def recognize_image(image, model):
-    # image = resize_with_padding_torch(image, target_size=(128, 128)).to('cuda')
-
+    image = resize_with_padding_torch(image, target_size=(128, 128)).to('cuda')
+    '''
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Resize((128, 128)),
         transforms.Normalize(mean, std)
     ])
     image = transform(image).unsqueeze(0).to('cuda')
-
+    '''
     prediction = model(image)
     print(prediction)
     predict_ans = tc.argmax(prediction, 1).item()
@@ -91,6 +98,7 @@ def cut_single_image(img_path, yolo_path):
         x1, y1, x2, y2 = boxes[0].astype(int)
         roi = cv2.imread(img_path)[y1:y2, x1:x2]
         cv2.imwrite("cropped_leaf.jpg", roi)
+        roi = cv2.cvtColor(roi, cv2.COLOR_BGR2RGB)
         return roi
     return None
 
@@ -102,4 +110,5 @@ def predict_from_extended(img_path, yolo_path, model):
     result = predict_image(model, roi)
     return result
 
-# predict_single_image(image_path, yolo_model_path)
+
+# cut_single_image(image_path, yolo_model_path)

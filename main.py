@@ -27,7 +27,7 @@ valid_path = 'datasets/TomatoLeavesDataset/valid'
 test_path = 'datasets/PlantVillageTomatoLeavesDataset/val'
 
 yolo_model_path = 'runs/detect/train2/weights/best.pt'
-single_image_path = 'datasets/ExtendedTestImages/powdery_mildew/Pm3.jpg'
+single_image_path = 'datasets/ExtendedTestImages/Target_spot/Ts2.jpg'
 
 # 每次训练前都要修改记录存放路径！
 csv_file_path = 'training_records/ResNet/with_optimized_perception_layer_and_classifier/train_log.csv'
@@ -205,11 +205,9 @@ def main():
 
         model.load_state_dict(tc.load('./model_param_' + switch + '.pth', weights_only=True))
 
-        '''
         accuracy, kappa = evaluate_acc(test_data, model, with_kappa=True)
         print("Accuracy on test dataset: ", accuracy)
         print("Kappa score: ", kappa)
-        '''
 
         prediction = predict_from_extended(img_path=single_image_path, yolo_path=yolo_model_path, model=model)
 
