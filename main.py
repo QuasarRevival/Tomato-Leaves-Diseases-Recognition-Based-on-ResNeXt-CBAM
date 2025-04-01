@@ -27,7 +27,7 @@ valid_path = 'datasets/TomatoLeavesDataset/valid'
 test_path = 'datasets/PlantVillageTomatoLeavesDataset/val'
 
 yolo_model_path = 'runs/detect/train2/weights/best.pt'
-single_image_path = 'datasets/ExtendedTestImages/Target_spot/Ts2.jpg'
+single_image_path = 'datasets/PlantVillageTomatoLeavesDataset/test/Tomato_mosaic_virus/Tmv261.jpg'
 
 # 每次训练前都要修改记录存放路径！
 csv_file_path = 'training_records/ResNet/with_optimized_perception_layer_and_classifier/train_log.csv'
@@ -48,7 +48,7 @@ class_to_index = {
 }
 
 # 设置超参数
-image_size = (128, 128)
+image_size = (224, 224)
 mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
 
@@ -204,11 +204,12 @@ def main():
     if choose == 'Y':
 
         model.load_state_dict(tc.load('./model_param_' + switch + '.pth', weights_only=True))
-
+        model.eval()
+        '''
         accuracy, kappa = evaluate_acc(test_data, model, with_kappa=True)
         print("Accuracy on test dataset: ", accuracy)
         print("Kappa score: ", kappa)
-
+        '''
         prediction = predict_from_extended(img_path=single_image_path, yolo_path=yolo_model_path, model=model)
 
         if prediction is None:
