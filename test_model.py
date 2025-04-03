@@ -60,8 +60,8 @@ def open_image(image_path):
 
 
 def recognize_image(image, model):
-    # image = resize_with_padding_torch(image, crop_size=(224, 224)).to('cuda')
-
+    image = resize_with_padding_torch(image, crop_size=(224, 224)).to('cuda')
+    '''
     transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Resize((224, 224)),
@@ -70,7 +70,7 @@ def recognize_image(image, model):
     image = transform(image).unsqueeze(0).to('cuda')
     plt.imshow(image.squeeze().permute([1, 2, 0]).to('cpu').numpy())
     plt.show()
-
+    '''
     prediction = model(image)
     print(prediction)
     predict_ans = tc.argmax(prediction, 1).item()

@@ -1,8 +1,9 @@
 import torch as tc
 import torch.nn as nn
-from init_param import initialize_weights
+from CNN_models.init_param import initialize_weights
 
 
+# SEBlock模块定义
 class SEBlock(nn.Module):
     def __init__(self, in_channels, reduction_ratio=16):
         super().__init__()
@@ -21,6 +22,7 @@ class SEBlock(nn.Module):
         return x * y.expand_as(x)
 
 
+# SpatialAttention模块定义
 class SpatialAttention(nn.Module):
     def __init__(self, kernel_size=7):
         super().__init__()
@@ -39,10 +41,10 @@ class SpatialAttention(nn.Module):
 # ResNeXt残差网络定义
 # 混合注意力机制运用，CBAM模块
 class CBAM(nn.Module):
-    def __init__(self, in_channels, reduction_ratio=16):
+    def __init__(self, in_channels, reduction_ratio=16, kernel_size=7):
         super().__init__()
         self.channel_attention = SEBlock(in_channels, reduction_ratio)
-        self.spatial_attention = SpatialAttention()
+        self.spatial_attention = SpatialAttention(kernel_size)
 
     def forward(self, x):
         x = self.channel_attention(x)
@@ -54,7 +56,9 @@ class CBAM(nn.Module):
 class Bottleneck(nn.Module):
     expansion = 4
 
-    def __init__(self, in_channels, out_channels, stride=1, cardinality=32, base_width=4, downsample=None, init_weight=True):
+    def __init__(self, in_channels, out_channels, stride=1,
+                 cardinality=32, base_width=4, downsample=None, init_weight=True,
+                 SE_reduction_ratio=16, SA_kernel_size=7):
         super().__init__()
         width = int(out_channels * (base_width / 64)) * cardinality
         self.conv1 = nn.Conv2d(in_channels, width, kernel_size=1, bias=False)
@@ -69,7 +73,7 @@ class Bottleneck(nn.Module):
 
         self.conv3 = nn.Conv2d(width, out_channels * self.expansion, kernel_size=1, bias=False)
         self.bn3 = nn.BatchNorm2d(out_channels * self.expansion)
-        self.cbam = CBAM(out_channels * self.expansion)
+        self.cbam = CBAM(out_channels * self.expansion, SE_reduction_ratio, SA_kernel_size)
         self.relu = nn.ReLU(inplace=True)
 
         # 下采样（当输入输出维度不匹配时）
@@ -105,9 +109,16 @@ class Bottleneck(nn.Module):
 
 
 # ResNeXt50-CBAM定义
-class ResNet(nn.Module):
-    def __init__(self, num_classes, init_weight=True):
-        super(ResNet, self).__init__()
+class ResNeXt(nn.Module):
+    def __init__(self, num_classes, init_weight=True,
+                 cardinality=32, base_width=4, SE_reduction_ratio=16, SA_kernel_size=7):
+        super(ResNeXt, self).__init__()
+
+        # hyperparameters
+        self.cardinality = cardinality
+        self.base_width = base_width
+        self.SE_reduction_ratio = SE_reduction_ratio
+        self.SA_kernel_size = SA_kernel_size
 
         # 感知层，卷积核边长为7
         '''
@@ -163,14 +174,16 @@ class ResNet(nn.Module):
             )
 
         # 第一个瓶颈有下采样层
-        layers = [Bottleneck(in_planes, out_planes, stride, 32, 4, downsample, init_weight)]
+        layers = [Bottleneck(in_planes, out_planes, stride, self.cardinality, self.base_width, downsample, init_weight,
+                             SE_reduction_ratio=self.SE_reduction_ratio, SA_kernel_size=self.SA_kernel_size)]
         in_planes = out_planes * Bottleneck.expansion
         for _ in range(1, blocks):
-            layers.append(Bottleneck(in_planes, out_planes, init_weight=init_weight))
+            layers.append(Bottleneck(in_planes, out_planes, 1, self.cardinality, self.base_width, None,
+                                     init_weight=init_weight, SE_reduction_ratio=self.SE_reduction_ratio,
+                                     SA_kernel_size=self.SA_kernel_size))
         return nn.Sequential(*layers)
 
     def forward(self, x):
-
         """
         x = self.conv1(x)
         x = self.bn1(x)

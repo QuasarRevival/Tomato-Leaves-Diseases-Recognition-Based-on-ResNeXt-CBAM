@@ -1,4 +1,4 @@
-# Deep CNN
+# Deep CNN: SSA-ResNeXt-CBAM
 
 ## How to work
 

@@ -8,10 +8,12 @@ import numpy as np
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
 import torch.optim.lr_scheduler as scheduler
+from torch.cuda.amp import GradScaler, autocast
 from sklearn.metrics import cohen_kappa_score
 
 from CNN_models.model_VGG import VGG
 from CNN_models.model_ResNet import ResNet
+from CNN_models.model_ResNeXt import ResNeXt
 
 from test_model import predict_from_extended, predict_image, open_image
 
@@ -27,10 +29,10 @@ valid_path = 'datasets/TomatoLeavesDataset/valid'
 test_path = 'datasets/PlantVillageTomatoLeavesDataset/val'
 
 yolo_model_path = 'runs/detect/train2/weights/best.pt'
-single_image_path = 'datasets/PlantVillageTomatoLeavesDataset/test/Tomato_mosaic_virus/Tmv261.jpg'
+single_image_path = 'datasets/ExtendedTestImages/Target_spot/Ts2.jpg'
 
 # 每次训练前都要修改记录存放路径！
-csv_file_path = 'training_records/ResNet/with_optimized_perception_layer_and_classifier/train_log.csv'
+csv_file_path = 'training_records/ResNeXt/prototype/train_log.csv'
 
 # 定义种类字典
 class_to_index = {
@@ -140,6 +142,9 @@ def train(model, train_loader, valid_loader, criterion, optimizer, schedule, epo
     average_cost_list = []
     train_accuracy_list = []
     valid_accuracy_list = []
+
+    scaler = GradScaler()
+
     for i in range(epoch):
         average_cost = 0
         train_accuracy = 0
@@ -150,11 +155,13 @@ def train(model, train_loader, valid_loader, criterion, optimizer, schedule, epo
             Y = Y.to(device)
 
             optimizer.zero_grad()
-            output = model.forward(X)
-            hypothesis = model(X)
-            cost = criterion(hypothesis, Y)
-            cost.backward()
-            optimizer.step()
+            with autocast():
+                output = model.forward(X)
+                cost = criterion(output, Y)
+            scaler.scale(cost).backward()
+            scaler.step(optimizer)
+            scaler.update()
+
             average_cost += cost.item()
             if show_acc:
                 predict = tc.argmax(output.data, 1)
@@ -179,15 +186,15 @@ def train(model, train_loader, valid_loader, criterion, optimizer, schedule, epo
 
 
 def main():
-    print("Choose the type of the model from VGG, ResNet and Attention: ")
+    print("Choose the type of the model from VGG, ResNet and ResNeXt: ")
     switch = input()
 
     if switch == 'VGG':
         model = VGG(num_classes=11, init_weight=True).to(device)
     elif switch == 'ResNet':
         model = ResNet(num_classes=11, init_weight=True).to(device)
-    elif switch == 'Attention':
-        exit(0)
+    elif switch == 'ResNeXt':
+        model = ResNeXt(num_classes=11, init_weight=True).to(device)
     else:
         print("Wrong Choice!")
         exit(-1)
