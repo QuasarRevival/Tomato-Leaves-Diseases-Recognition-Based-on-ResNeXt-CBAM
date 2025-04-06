@@ -134,7 +134,7 @@ def evaluate_acc(test_loader, model, with_kappa=False):
 
 
 # 训练模型
-def train(model, train_loader, valid_loader, criterion, optimizer, schedule, epoch=25, show_acc=True):
+def train(model, train_loader, valid_loader, criterion, optimizer, schedule=None, epoch=25, show_acc=True):
     print('Training starts.')
     model.train()
     total_batch = len(train_loader)
@@ -145,22 +145,26 @@ def train(model, train_loader, valid_loader, criterion, optimizer, schedule, epo
 
     scaler = GradScaler()
 
+    accumulate = 4
+
     for i in range(epoch):
         average_cost = 0
         train_accuracy = 0
         total_number = 0
 
-        for X, Y in train_loader:
+        for iter, (X, Y) in enumerate(train_loader):
             X = X.to(device)
             Y = Y.to(device)
 
-            optimizer.zero_grad()
             with autocast():
                 output = model.forward(X)
                 cost = criterion(output, Y)
             scaler.scale(cost).backward()
-            scaler.step(optimizer)
-            scaler.update()
+
+            if (iter + 1) % accumulate == 0:
+                scaler.step(optimizer)
+                scaler.update()
+                optimizer.zero_grad()
 
             average_cost += cost.item()
             if show_acc:
@@ -179,7 +183,9 @@ def train(model, train_loader, valid_loader, criterion, optimizer, schedule, epo
                   .format(i + 1, average_cost, train_accuracy, valid_accuracy))
         else:
             print('[Epoch:{}] cost = {}'.format(i + 1, average_cost))
-        schedule.step()
+
+        if schedule is not None:
+            schedule.step()
 
     print('Training Finished.')
     return average_cost_list, train_accuracy_list, valid_accuracy_list
@@ -269,4 +275,5 @@ def main():
     '''
 
 
-main()
+if __name__ == '__main__':
+    main()

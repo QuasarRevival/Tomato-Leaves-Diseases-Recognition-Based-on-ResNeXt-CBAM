@@ -110,7 +110,7 @@ class Bottleneck(nn.Module):
 
 # ResNeXt50-CBAM定义
 class ResNeXt(nn.Module):
-    def __init__(self, num_classes, init_weight=True,
+    def __init__(self, num_classes, init_weight=True, dropout_rate=0.5,
                  cardinality=32, base_width=4, SE_reduction_ratio=16, SA_kernel_size=7):
         super(ResNeXt, self).__init__()
 
@@ -150,7 +150,7 @@ class ResNeXt(nn.Module):
 
         # 自适应池化层，替代传统的复杂全连接层，减少参数数量，避免过拟合
         self.avg_pooling = nn.AdaptiveAvgPool2d((1, 1))
-        self.dropout = nn.Dropout(p=0.5)
+        self.dropout = nn.Dropout(p=dropout_rate)
 
         # 分类器，全连接层
 
