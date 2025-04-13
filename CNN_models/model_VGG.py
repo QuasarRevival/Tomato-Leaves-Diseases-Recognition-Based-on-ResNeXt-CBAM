@@ -69,11 +69,11 @@ class VGG(nn.Module):
 
         # 自适应池化层
         # input = (N, C=512, H=8, W=8)
-        # self.average_pool = nn.AdaptiveAvgPool2d(output_size=(7, 7))
+        self.average_pool = nn.AdaptiveAvgPool2d(output_size=(7, 7))
 
         # 分类层（全连接）
         # input = (N, C=512, H=7, W=7)
-        self.full_connection_1 = nn.Linear(512 * 4 * 4, 4096, bias=True)
+        self.full_connection_1 = nn.Linear(512 * 7 * 7, 4096, bias=True)
         self.non_linear_1 = nn.ReLU(inplace=True)
         self.dropout_1 = nn.Dropout(p=0.5)
         self.full_connection_2 = nn.Linear(4096, 4096, bias=True)
@@ -86,7 +86,7 @@ class VGG(nn.Module):
 
     def forward(self, x):
         x = self.features(x)
-        # x = self.average_pool(x)
+        x = self.average_pool(x)
         x = x.view(x.size(0), -1)
 
         x = self.full_connection_1(x)

@@ -32,7 +32,7 @@ yolo_model_path = 'runs/detect/train2/weights/best.pt'
 single_image_path = 'datasets/ExtendedTestImages/Target_spot/Ts2.jpg'
 
 # 每次训练前都要修改记录存放路径！
-csv_file_path = 'training_records/ResNeXt/prototype/train_log.csv'
+root_path = "training_records/ResNeXt/after_hyperparam_optim/"
 
 # 定义种类字典
 class_to_index = {
@@ -54,10 +54,10 @@ image_size = (224, 224)
 mean = [0.485, 0.456, 0.406]
 std = [0.229, 0.224, 0.225]
 
-learning_rate = 0.001
-batch_size = 32
-train_epoch = 25
-l2_lambda = 0.00001
+learning_rate = 0.000788
+batch_size = 16
+train_epoch = 50
+l2_lambda = 0.000028
 
 # 数据增强以及图像张量化
 transform_train = transforms.Compose([
@@ -200,14 +200,15 @@ def main():
     elif switch == 'ResNet':
         model = ResNet(num_classes=11, init_weight=True).to(device)
     elif switch == 'ResNeXt':
-        model = ResNeXt(num_classes=11, init_weight=True).to(device)
+        model = ResNeXt(num_classes=11, init_weight=True, dropout_rate=0.466, cardinality=16, base_width=4,
+                        SE_reduction_ratio=16, SA_kernel_size=3).to(device)
     else:
         print("Wrong Choice!")
         exit(-1)
 
     criterion = nn.CrossEntropyLoss().to(device)
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(0.9, 0.999), weight_decay=l2_lambda)
-    schedule = scheduler.StepLR(optimizer=optimizer, step_size=10, gamma=0.1)
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate, betas=(0.87, 0.99), weight_decay=l2_lambda)
+    schedule = scheduler.StepLR(optimizer=optimizer, step_size=20, gamma=0.1)
 
     # 尝试使用自适应学习率衰减
     # schedule = scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3)
@@ -216,7 +217,7 @@ def main():
     choose = input()
     if choose == 'Y':
 
-        model.load_state_dict(tc.load('./model_param_' + switch + '.pth', weights_only=True))
+        model.load_state_dict(tc.load(root_path + 'model_param_' + switch + '.pth', weights_only=True))
         model.eval()
         '''
         accuracy, kappa = evaluate_acc(test_data, model, with_kappa=True)
@@ -244,7 +245,7 @@ def main():
         print("Kappa score: ", kappa)
         csv_data = zip(epc, acl, tal, val)
 
-        with open(csv_file_path, "w", newline='') as csv_file:
+        with open(root_path + 'train_log.csv', "w", newline='') as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow(["Epoch", "Cost", "Train_acc", "Valid_acc"])
             writer.writerows(csv_data)
@@ -253,7 +254,7 @@ def main():
     print("Save the model? Y for yes, N for no: ", end='')
     choose = input()
     if choose == 'Y':
-        tc.save(model.state_dict(), './model_param_' + switch + '.pth')
+        tc.save(model.state_dict(), root_path + 'model_param_' + switch + '.pth')
 
     '''
     print(len(test_data))
