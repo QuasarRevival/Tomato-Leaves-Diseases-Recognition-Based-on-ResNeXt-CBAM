@@ -6,7 +6,7 @@ import csv
 import numpy as np
 
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 import torch.optim.lr_scheduler as scheduler
 from torch.cuda.amp import GradScaler, autocast
 from sklearn.metrics import cohen_kappa_score
@@ -26,7 +26,7 @@ if device == 'cuda':
 # 训练集与验证集路径
 train_path = 'datasets/TomatoLeavesDataset/train'
 valid_path = 'datasets/TomatoLeavesDataset/valid'
-test_path = 'datasets/PlantVillageTomatoLeavesDataset/val'
+# test_path = 'datasets/PlantVillageTomatoLeavesDataset/val'
 
 yolo_model_path = 'runs/detect/train2/weights/best.pt'
 single_image_path = 'datasets/ExtendedTestImages/Target_spot/Ts2.jpg'
@@ -85,10 +85,11 @@ valid_dataset = datasets.ImageFolder(
     root=valid_path,
     transform=transform_valid
 )
-test_dataset = datasets.ImageFolder(
+valid_dataset, test_dataset = random_split(valid_dataset, (4400, len(valid_dataset) - 4400))
+'''test_dataset = datasets.ImageFolder(
     root=test_path,
     transform=transform_valid
-)
+)'''
 
 # 数据可训练化
 train_data = DataLoader(
@@ -219,7 +220,7 @@ def main():
 
         model.load_state_dict(tc.load(root_path + 'model_param_' + switch + '.pth', weights_only=True))
         model.eval()
-        '''
+
         accuracy, kappa = evaluate_acc(test_data, model, with_kappa=True)
         print("Accuracy on test dataset: ", accuracy)
         print("Kappa score: ", kappa)
@@ -231,6 +232,7 @@ def main():
             prediction = predict_image(model, image)
         tag = [key for key, value in class_to_index.items() if value == prediction]
         print("Prediction: ", tag[0])
+        '''
 
     print("Train the model? Y for yes, N for no: ", end='')
     choose = input()

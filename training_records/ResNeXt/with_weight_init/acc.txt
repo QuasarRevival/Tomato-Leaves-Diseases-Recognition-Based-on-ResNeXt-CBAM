@@ -1,0 +1,2 @@
+Accuracy on test dataset:  0.8904949627682873
+Kappa score:  0.8717261355421272
