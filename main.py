@@ -29,7 +29,7 @@ valid_path = 'datasets/TomatoLeavesDataset/valid'
 # test_path = 'datasets/PlantVillageTomatoLeavesDataset/val'
 
 yolo_model_path = 'runs/detect/train2/weights/best.pt'
-single_image_path = 'datasets/ExtendedTestImages/Target_spot/Ts2.jpg'
+single_image_path = 'datasets/ExtendedTestImages/Powdery_mildew/Pm5.jpg'
 
 # 每次训练前都要修改记录存放路径！
 root_path = "training_records/ResNeXt/after_hyperparam_optim/"
@@ -220,7 +220,7 @@ def main():
 
         model.load_state_dict(tc.load(root_path + 'model_param_' + switch + '.pth', weights_only=True))
         model.eval()
-
+        '''
         accuracy, kappa = evaluate_acc(test_data, model, with_kappa=True)
         print("Accuracy on test dataset: ", accuracy)
         print("Kappa score: ", kappa)
@@ -232,7 +232,6 @@ def main():
             prediction = predict_image(model, image)
         tag = [key for key, value in class_to_index.items() if value == prediction]
         print("Prediction: ", tag[0])
-        '''
 
     print("Train the model? Y for yes, N for no: ", end='')
     choose = input()
