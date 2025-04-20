@@ -4,12 +4,14 @@ import torch.nn as nn
 import csv
 
 import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader, random_split
 import torch.optim.lr_scheduler as scheduler
 from torch.cuda.amp import GradScaler, autocast
-from sklearn.metrics import cohen_kappa_score
+from sklearn.metrics import cohen_kappa_score, confusion_matrix
 
 from CNN_models.model_VGG import VGG
 from CNN_models.model_ResNet import ResNet
@@ -131,6 +133,13 @@ def evaluate_acc(test_loader, model, with_kappa=False):
     kappa = 0
     if with_kappa:
         kappa = cohen_kappa_score(l, p, weights='quadratic')
+        cm = confusion_matrix(l, p)
+        plt.figure(figsize=(10, 7))
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')  # 使用Blues配色方案，annot=True表示显示数字，fmt='d'表示整数格式
+        plt.ylabel('Actual')
+        plt.xlabel('Predicted')
+        plt.title('Confusion Matrix')
+        plt.show()
     return test_accuracy, kappa
 
 
@@ -220,7 +229,7 @@ def main():
 
         model.load_state_dict(tc.load(root_path + 'model_param_' + switch + '.pth', weights_only=True))
         model.eval()
-        '''
+
         accuracy, kappa = evaluate_acc(test_data, model, with_kappa=True)
         print("Accuracy on test dataset: ", accuracy)
         print("Kappa score: ", kappa)
@@ -232,6 +241,7 @@ def main():
             prediction = predict_image(model, image)
         tag = [key for key, value in class_to_index.items() if value == prediction]
         print("Prediction: ", tag[0])
+        '''
 
     print("Train the model? Y for yes, N for no: ", end='')
     choose = input()
